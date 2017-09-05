@@ -39,7 +39,8 @@ resource "aws_subnet" "portal_infra" {
   vpc_id = "${aws_vpc.portal_infra.id}"
 
   availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
-  cidr_block = "${cidrsubnet(aws_vpc.portal_infra.cidr_block, 8, count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.portal_infra.cidr_block, 8, var.az_number[element(data.aws_availability_zone.portal_infra.*.name_suffix,
+  count.index)])}"
 
   tags { Name = "portal_infra" }
 
