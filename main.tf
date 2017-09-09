@@ -24,8 +24,8 @@ resource "aws_instance" "web" {
   // specify the connection information here.
   connection {
     user     = "nutanix"
-    password = "nutanix/4u"
-//    private_key = "${file("${module.ssh_keys.private_key_path}")}"
+//    password = "nutanix/4u"
+    private_key = "${file("${module.ssh_keys.private_key_path}")}"
   }
 
   // The first remote-exec provisioner is used to wait for cloud-init (which is
@@ -33,9 +33,15 @@ resource "aws_instance" "web" {
   // to provision the instance before apt has updated all its sources. This is
   // an implementation detail of an operating system and the way it runs on the
   // cloud platform; this is not a Terraform bug.
+  provisioner "file" {
+    source      = "${path.module}/scripts/wait-for-ready.sh"
+    destination = "/home/nutanix/tmp/script.sh"
+  }
+
   provisioner "remote-exec" {
-    scripts = [
-      "${path.module}/scripts/wait-for-ready.sh"
+    inline = [
+      "chmod +x /home/nutanix/tmp/script.sh",
+      "sh /home/nutanix/tmp/script.sh",
     ]
   }
 }
